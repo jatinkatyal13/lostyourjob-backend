@@ -9,7 +9,7 @@ def exchangeGrantCode(code):
   data = {
     'grant_type': 'authorization_code',
     'code': code,
-    'redirect_uri': 'http://localhost:3000/auth/linkedin',
+    'redirect_uri': 'http://localhost:3000/login/linkedin',
     'client_id': config('LINKEDIN_CLIENT_ID'),
     'client_secret': config('LINKEDIN_CLIENT_SECRET')
   }

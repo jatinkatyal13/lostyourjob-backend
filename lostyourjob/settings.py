@@ -121,6 +121,7 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000"
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 # New Auth User Model
 AUTH_USER_MODEL = 'api_auth.User'
