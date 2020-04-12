@@ -1,5 +1,5 @@
 from django.urls import path
-from auth import views
+from api_auth import views
 
 urlpatterns = [
   path('linkedin/', views.LinkedIn.as_view())
