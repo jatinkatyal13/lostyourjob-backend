@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from api_auth.models import User
 
 class Seeker(models.Model):
-  user = models.OneToOneField(User, on_delete = models.CASCADE)
+  user = models.OneToOneField(User, on_delete = models.CASCADE, related_name = 'profile')
   summary = models.TextField(blank = True)
   offer_letter = models.URLField(blank = True)
   resume = models.URLField(blank = True)
