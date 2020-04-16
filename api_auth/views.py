@@ -15,8 +15,9 @@ from api_auth.serializers import UserSerializer
 class LinkedIn(APIView):
   def post(self, request):
     body = json.loads(request.body)
-    accessToken = linkedinUtils.exchangeGrantCode(body['code'])
-    user = linkedinUtils.getUserFromAccessToken(accessToken)
+    role = ('role' in body) and body['role']
+    accessToken = linkedinUtils.exchangeGrantCode(body['code'], role)
+    user = linkedinUtils.getUserFromAccessToken(accessToken, role)
 
     # login the user
     login(request, user)

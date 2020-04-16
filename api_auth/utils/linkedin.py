@@ -4,16 +4,16 @@ from decouple import config
 import requests
 import json
 
-def exchangeGrantCode(code):
+def exchangeGrantCode(code, role):
   url = 'https://www.linkedin.com/oauth/v2/accessToken'
   data = {
     'grant_type': 'authorization_code',
     'code': code,
-    'redirect_uri': 'http://localhost:3000/login/linkedin',
+    'redirect_uri': f'http://localhost:3000/login/linkedin{"?role="+role if role else ""}',
     'client_id': config('LINKEDIN_CLIENT_ID'),
     'client_secret': config('LINKEDIN_CLIENT_SECRET')
   }
-
+  print(data)
   resp = requests.post(url, data = data)
   resp.raise_for_status()
   resp = json.loads(resp.content)
@@ -23,9 +23,11 @@ def exchangeGrantCode(code):
 def getName(nameObj):
   locale = nameObj['preferredLocale']['language'] + '_' + nameObj['preferredLocale']['country']
   return nameObj['localized'][locale]
-def getProfilePicture(profilePictureObj):
-  if not profilePictureObj:
+def getProfilePicture(user, field):
+  if not field in user:
     return ''
+  
+  profilePictureObj = user[field]
 
   for pics in profilePictureObj['displayImage~']['elements']:
     if pics['authorizationMethod'] == 'PUBLIC':
@@ -33,7 +35,7 @@ def getProfilePicture(profilePictureObj):
   
   return ''
 
-def getUserFromAccessToken(accessToken):
+def getUserFromAccessToken(accessToken, role):
   '''
     Fetches or creates the User in the DB
     using the LinkedIn response
@@ -41,12 +43,13 @@ def getUserFromAccessToken(accessToken):
 
   url = 'https://api.linkedin.com/v2/me'
   params = {
-    'projection': '(id,firstName,lastName,maidenName,profilePicture(displayImage~:playableStreams))'
+    'projection': '(id,vanityName,firstName,lastName,maidenName,profilePicture(displayImage~:playableStreams))'
   }
   headers = {
     'Authorization': f'Bearer {accessToken}'
   }
   respUser = requests.get(url, headers = headers, params = params)
+  print(respUser.content)
   respUser.raise_for_status()
   respUser = json.loads(respUser.content)
 
@@ -67,8 +70,9 @@ def getUserFromAccessToken(accessToken):
       'first_name': getName(respUser['firstName']),
       'last_name': getName(respUser['lastName']),
       'email': email,
-      'photo': getProfilePicture(respUser['profilePicture']),
-      'role': 'seeker'
+      'username': respUser['id'],
+      'photo': getProfilePicture(respUser, 'profilePicture'),
+      'role': role or 'seeker'
     }
   )
 
